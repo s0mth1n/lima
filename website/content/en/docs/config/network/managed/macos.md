@@ -109,6 +109,29 @@ networks:
 
 </details>
 
+## Modes
+
+### shared (192.168.105.0/24)
+
+Guests can reach the host, each other, and the outside world through NAT
+provided by the vmnet framework.
+
+### host (192.168.106.0/24)
+
+Guests can reach the host and each other, but not the outside world.
+The default network of the instance still provides outbound connectivity.
+
+### bridged
+
+The instance is attached directly to the physical network interface named by
+`interface` (`en0` in the default configuration), so that it gets an address
+from the outside network's DHCP server and is reachable from other hosts on
+the LAN.
+
+> **Warning**
+>
+> A bridged instance is exposed to every host on the LAN.
+
 Instances can then reference these networks:
 
 {{< tabpane text=true >}}
@@ -135,7 +158,6 @@ networks:
 The network daemon is started automatically when the first instance referencing them is started,
 and will stop automatically once the last instance has stopped. Daemon logs will be stored in the
 `$LIMA_HOME/_networks` directory.
-
 Since the commands to start and stop the `socket_vmnet` daemon requires root, the user either must
 have password-less `sudo` enabled, or add the required commands to a `sudoers` file. This can
 be done via:
