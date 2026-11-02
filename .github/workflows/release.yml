@@ -107,6 +107,13 @@ jobs:
     - name: "SHA256SUMS"
       run: |
         ( cd _artifacts; sha256sum *.tar.gz *.zip ) | tee /tmp/SHA256SUMS
+        # The auto-generated source tarball is not in _artifacts, but its bytes
+        # match `git archive --prefix <repo>-<version>/ HEAD | gzip`.
+        if [[ "$GITHUB_REF" == refs/tags/v* ]]; then
+          src="lima-${GITHUB_REF_NAME#v}.tar.gz"
+          git archive --prefix "${src%.tar.gz}/" HEAD | gzip | sha256sum \
+            | awk -v f="$src" '{print $1 "  " f}' >> /tmp/SHA256SUMS
+        fi
         mv /tmp/SHA256SUMS _artifacts/SHA256SUMS
     - name: "The sha256sum of the SHA256SUMS file"
       run: (cd _artifacts; sha256sum SHA256SUMS)
